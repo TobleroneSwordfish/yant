@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="templating.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>Custom templating language documentation</title>
+</head>
+<body>
+    <p>
+        <h1>Template language documentation</h1>
+        All expressions in the language are evaluated using the NodeJS VM module, and therefore can be any valid Javascript expression.
+        <br>
+        There are a number of different statements in the language:
+    </p>
+    <ul>
+        <li>
+            <header>Direct replacement</header>
+            $${<p class="code">${expression}</p>}$$ <p>Where expression is a valid javascript expression in the environment of the template map.<br>
+                The statement is simply replaced with the value of expression.
+                The value itself is not further evaluated by the template language, and so may freely contain special character sequences.</p>
+        </li>
+        <li>
+            <header>Eval</header>
+            $${<p class="code">$eval{expression}</p>}$$
+            <p>
+                Same as direct replacement except the value of the expression is evaluated as template language code itself.
+                <br>
+                Allows for recursive structures often using $${$declare}$$ (see below).
+            </p>
+        </li>
+        <li>
+            <header>If else</header>
+            $${<p class="code">$if(expression){
+    body
+}else{
+    else body
+}
+            </p>}$$ <p>The statement is replaced with body if expression evaluates to true or else body if it evaluates to false.<br>
+                The else case is optional.<br>
+                The body and else body may contain other templating statements which will be evaluated in turn.</p>
+        </li>
+        <li>
+            <header>Foreach</header>
+            $${<p class="code">$foreach(variable in iterable){
+    body
+}
+            </p>}$$
+            <p>iterable should evaluate to some iterable array like structure.<br>
+            For each element in iterable, the body will be cloned and evaluated using a template map that includes the entry variable: element.<br>
+            For example
+            $${<div class="code">$foreach(number in [1,2,3]){
+    The number is ${number}
+}
+            </div>}$$ will result in: <br>
+            <div class="code">$foreach(number in [1,2,3]){
+The number is ${number}}
+            </div>
+            The body may also contain any other templating statement including other foreach statements.</p>
+        </li>
+        <li>
+            <header>Declare</header>
+            $${<p class="code">$declare(name){
+    body
+}
+            </p>}$$
+
+            <p>
+                Adds the entry <div class="code">name: body</div> to the template map for the page and then removes the statement.<br>
+                This allows blocks that must be reused to be defined directly in the HTML. <br>
+                An example of $${$declare}$$ being used alongside $${$eval}$$ to create a recursively defined comment section is shown below:
+            </p>
+
+            <!-- This comment exists to express my displeasure that there's no replacement for the deprecated xmp tag meaning I have to do this -->
+            $${<p class="code">
+&lt;!-- block that is recursively copied for each comment --&gt;
+$declare(comment_block){
+    &lt;div class="comment"&gt;
+        &lt;div class="content"&gt;
+            &lt;div class="id no-display"&gt;${comment.id}&lt;/div&gt;
+            &lt;strong&gt;${users[comment.user_id]}&lt;/strong&gt;
+            &lt;div class="comment-text"&gt;${comment.content}&lt;/div&gt;
+        &lt;/div&gt;
+        $foreach(comment in comment.children){
+            $eval{comment_block}
+        }
+    &lt;/div&gt;
+}
+
+&lt;!-- For each top level comment --&gt;
+$foreach(comment in comments){
+    &lt;div class="comment-chain"&gt;
+        $eval{comment_block}
+    &lt;/div&gt;
+}
+            </p>}$$
+            will result in (with some CSS styling):
+            <!-- block that is recursively copied for each comment -->
+            $declare(comment_block){
+                <div class="comment">
+                    <div class="content">
+                        <div class="id no-display">${comment.id}</div>
+                        <strong>${users[comment.user_id]}</strong>
+                        <div class="comment-text">${comment.content}</div>
+                    </div>
+                    $foreach(comment in comment.children){
+                        $eval{comment_block}
+                    }
+                </div>
+            }
+
+            $foreach(comment in comments){
+                <div class="comment-chain">
+                    $eval{comment_block}
+                </div>
+            }
+        </li>
+    </ul>
+</body>
+</html>

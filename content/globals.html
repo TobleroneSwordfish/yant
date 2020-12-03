@@ -1,0 +1,61 @@
+$declare(navbar){
+    $if(!session.admin){
+        <ul class="navbar" id="navbar">
+        <li><a href="/">Home</a></li>
+        <li><a href="/fanart">Fanart</a></li>
+        <li>
+        $if(session.loggedin){
+            <form action="/logout" method="post" class="center nav-button"> Logged in as $escape{session.username}
+            <input type="submit" value="Logout" class="logout-button">
+            </form>
+        }else{
+        <a class="popup" id="loginPopup">Login
+            <div class="popuptext" id="loginPopupText">
+            <form action="/login" method="post" class="center">
+                Username: <br>
+                <input type="text" name="username"> <br>
+                Password: <br>
+                <input type="password" name="password"> <br>
+                <input type="submit" class= "button">
+            </form>
+            </div>
+        </a>
+        }
+        </li>
+        </ul>
+    }else{
+        <ul class="navbar admin-navbar horizontal" id="navbar">
+            <li><a href="/">Home</a></li>
+            <li><a href="/fanart">Fanart</a></li>
+            <li><a href="/admin">Admin</a></li>
+            <li>
+            <form action="/logout" method="post" class="center nav-button"> Logged in as $escape{session.username}
+                <input type="submit" value="Logout" class="logout-button">
+            </form>
+            </li>
+        </ul>
+    }
+    $if(!session.loggedin){
+    <script>
+        document.body.addEventListener("click",toggleOffPopup,false);
+    
+        function toggleOffPopup() {
+            var popup=document.getElementById('loginPopupText');
+            if (popup.classList.contains("show")){
+                popup.classList.toggle("show");
+            }
+        }
+    
+        document.getElementById("loginPopup").addEventListener("click",togglePopup);
+        function togglePopup() {
+            var popup = document.getElementById("loginPopupText");
+            popup.classList.toggle("show");
+        }
+        document.getElementById('loginPopup').addEventListener('click',stopPropagation, true);
+        function stopPropagation(ev) {
+            console.log("called stoppropagation")
+            ev.stopPropagation();
+        }
+        </script>
+    }
+}

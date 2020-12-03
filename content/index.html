@@ -1,0 +1,53 @@
+<p>Escaped string embedded in page: $${Foo}}{)*"$"}$}$$</p>
+
+$declare(comment_block){
+    <!-- block that is recursively copied for each comment -->
+    <div class="comment">
+      <div class="content">
+        <div class="id no-display">${comment.id}</div>
+        <strong>${users[comment.user_id]}</strong>
+        <div class="comment-text">${comment.content}</div>
+      </div>
+      $foreach(comment in comment.children){
+        $eval{comment_block}
+      }
+    </div>
+}
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Templating showcase</title>
+</head>
+<body>
+
+<h1>${test}</h1>
+<p>Server startup time: ${time}</p>
+<p>Page load time: ${new Date()}</p>
+<p>Time elapsed: ${((new Date()) - time)/1000} seconds</p>
+<p>String: ${"Foo"}</p>
+<p>Escaped string from server: ${special_string}</p>
+
+$if(bool){
+  <p>Random is true</p>
+}
+
+$if(!bool){
+  <p>Random is false</p>
+}
+
+$if(bool){
+  <p>Random is still true</p>
+}else{
+  <p>Random is still false</p>
+}
+
+$foreach(comment in comments){
+    <div class="comment-chain">
+        $eval{comment_block}
+    </div>
+}
+
+</body>
+</html>
