@@ -1,5 +1,5 @@
 # Yet Another Node Templator
-A simple but powerful templating engine I wrote as practice for Node, npm and Mocha.
+A simple yet powerful templating engine I wrote as practice for Node, npm and Mocha.
 
 Documentation can be found [here](https://htmlpreview.github.io/?https://github.com/TobleroneSwordfish/yant/blob/master/documentation_static.html)
 
